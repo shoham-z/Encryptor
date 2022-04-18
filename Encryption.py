@@ -11,15 +11,16 @@ class Encryption:
         Tries to read the key from file in the same directory.
         If unsuccessful, it generates a key and saves it to file.
         """
-        key_file = File.File('key.txt')
         try:
-            self.key = key_file.read()
-            if len(self.key) != 44:
-                self.key = Fernet.generate_key()
-                key_file.write(self.key)
-        except Exception:
-            self.key = Fernet.generate_key()
-            key_file.write(self.key)
+            key_file = File.File('key.txt')
+            self.__key = key_file.read()
+            if len(self.__key) != 44:
+                self.__key = Fernet.generate_key()
+                key_file.write(str(self.__key.decode('utf-8')))
+        except FileNotFoundError:
+            self.__key = Fernet.generate_key()
+            key_file = File.File('key.txt')
+            key_file.write(self.__key.decode('utf-8'))
         return
 
     def __del__(self):
@@ -31,9 +32,14 @@ class Encryption:
         :param text: To encrypt
         :return: The encrypted text
         """
-        fernet = Fernet(self.key)
-        encrypted = fernet.encrypt(text.encode())
-        text = str(encrypted.decode())
+        tmp = text
+        fernet = Fernet(self.__key)
+        if not isinstance(text, bytes):
+            encrypted = fernet.encrypt(text.encode())
+            text = str(encrypted.decode())
+        else:
+            encrypted = fernet.encrypt(text)
+            text = str(encrypted)
         return text
 
     def decrypt(self, text):
@@ -42,6 +48,13 @@ class Encryption:
         :param text: To decrypt
         :return: The decrypted text
         """
-        fernet = Fernet(self.key)
-        text = str(fernet.decrypt(text.encode()).decode())
+        tmp = text
+        fernet = Fernet(self.__key)
+        nop = tmp[1:]
+        if not isinstance(text, bytes):
+            decrypted = fernet.decrypt(text.encode())
+            text = str(decrypted.decode())
+        else:
+            decrypted = fernet.decrypt(text)
+            text = str(decrypted)
         return text

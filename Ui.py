@@ -75,8 +75,8 @@ class Window:
             self.__file.write(self.__encrypt.decrypt(self.__file.read()))
             print('File decrypted successfully')
         elif self.__event == '_FILEBROWSE_':
-            self.__file = File.File(values['Browse'])
-            print(values['Browse'])
+            self.__file = File.File(values['Choose File'])
+            print(values['Choose File'])
             self.__encrypt = Encryption.Encryption()
 
         self.__event = ''

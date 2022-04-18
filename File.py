@@ -1,19 +1,18 @@
 class File:
-
     filename = ''
-    file = None
+    __file = None
     filetype = ''
 
     def __init__(self, name):
         self.filename = name
 
-    def __open(self, mode):
+    def __open(self):
         """
         Opens the file either to read or to write.
-        :param mode: Either read or write
+        :param: "mode" Either read or write
         :return: None
         """
-        self.file = open(self.filename, mode)
+        self.__file = open(self.filename, self.filetype)
         return
 
     def __close(self):
@@ -21,7 +20,7 @@ class File:
         Closes the file.
         :return: None
         """
-        self.file.close()
+        self.__file.close()
         return
 
     def read(self):
@@ -29,21 +28,28 @@ class File:
         Reads the content of the file.
         :return: content of the file
         """
-        self.__open('r')
-        content = self.file.read()
+        self.filetype = 'r'
+        content = ''
+        try:
+            self.__open()
+            content = self.__file.read()
+        except UnicodeDecodeError:
+            self.filetype = 'rb'
+            self.__open()
+            content = self.__file.read()
         self.__close()
         return content
 
     def write(self, text):
         """
         Writes content of 'text' variable to the file.
-        :param text: string
+        :param: "text" string
         :return: None
         """
-        self.__open('w')
-        self.filetype = 't'
+        self.filetype = 'w'
         if isinstance(text, bytes):
-            self.filetype = 'b'
-        self.file.write(text)
+            self.filetype = 'wb'
+        self.__open()
+        self.__file.write(text)
         self.__close()
         return
